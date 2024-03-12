@@ -1,0 +1,42 @@
+@font-face {
+  font-family: Montserrat;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  src: url('/src/assets/fonts/Montserrat/Montserrat-VariableFont_wght.ttf');
+}
+
+:root {
+  --primary: #075D88;
+  --gray-l: #f0f0f0b6;
+
+  font-family: Montserrat, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #80808085 transparent;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+}
+
+#app {
+  height: 100%;
+}
+
+button {
+  font-family: Montserrat, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
