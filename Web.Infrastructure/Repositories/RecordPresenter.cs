@@ -12,7 +12,6 @@ public sealed class RecordPresenter : IRecordPresenter
     private readonly ILogger<RecordPresenter> logger;
 
     private static readonly string Path = AppDomain.CurrentDomain.BaseDirectory + "/Data/";
-    private static readonly RecordResult EmptyResult = new() { Count = 0, Records = [] };
 
     public RecordPresenter(ILogger<RecordPresenter> logger)
     {
@@ -21,47 +20,39 @@ public sealed class RecordPresenter : IRecordPresenter
 
     public async Task<RecordResult> GetAll(PageFilter? pageFilter)
     {
-        try
+        const string Records = "records";
+
+        var jsonTotal = await File.ReadAllTextAsync(Path + "totalChats.json");
+        var data = Json.GetFirstInstance<Dictionary<string, Record>>(Records, jsonTotal) ?? [];
+
+        var jsonFiles = new (string, Func<Record, object>)[]
         {
-            const string Records = "records";
-
-            var jsonTotal = await File.ReadAllTextAsync(Path + "totalChats.json");
-            var data = Json.GetFirstInstance<Dictionary<string, Record>>(Records, jsonTotal) ?? [];
-
-            var jsonFiles = new (string, Func<Record, object>)[]
-            {
                 ("tags.json", (record) => record.Tags),
                 ("ratings.json", (record) => record.Rating),
                 ("duration.json", (record) => record.Duration),
                 ("responseTime.json", (record) => record.Response),
-            };
+        };
 
-            foreach (var (fileName, populateAction) in jsonFiles)
-            {
-                var jsonContent = await File.ReadAllTextAsync(Path + fileName);
-                Json.PopulateInstance(jsonContent, data, populateAction);
-            }
-
-            var records = data
-                .OrderBy(record => DateTime.Parse(record.Key))
-                .PageFilter(pageFilter)
-                .Select(record =>
-                {
-                    record.Value.Date = record.Key;
-                    return record.Value;
-                })
-                .ToArray();
-
-            return new RecordResult
-            {
-                Records = records,
-                Count = data.Count
-            };
-        }
-        catch (Exception ex)
+        foreach (var (fileName, populateAction) in jsonFiles)
         {
-            logger.LogError(ex, ex.Message);
-            return EmptyResult;
+            var jsonContent = await File.ReadAllTextAsync(Path + fileName);
+            Json.PopulateInstance(jsonContent, data, populateAction);
         }
+
+        var records = data
+            .OrderBy(record => DateTime.Parse(record.Key))
+            .PageFilter(pageFilter)
+            .Select(record =>
+            {
+                record.Value.Date = record.Key;
+                return record.Value;
+            })
+            .ToArray();
+
+        return new RecordResult
+        {
+            Records = records,
+            Count = data.Count
+        };
     }
 }
